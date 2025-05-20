@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <title>AI Assistant</title>
+  <meta name="description"
+    content="Get instant answers about our platform features and services with our AI assistant." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&family=DM+Serif+Display&display=swap"
+    rel="stylesheet">
+  <!-- Open Graph tags for better social media sharing -->
+  <meta property="og:title" content="AI Assistant" />
+  <meta property="og:description"
+    content="Get instant answers about our platform features and services with our AI assistant." />
+
+  <!-- This script will update the title and meta tags based on the server settings -->
+  <script>
+    // Fetch settings from the server to update title and meta tags
+    fetch('/api/chat/settings')
+      .then(response => response.json())
+      .then(data => {
+        if (data.projectName && data.projectType) {
+          // Update title
+          document.title = `${data.projectName} | ${data.projectType.charAt(0).toUpperCase() + data.projectType.slice(1)} Assistant`;
+
+          // Update meta tags
+          const metaDescription = document.querySelector('meta[name="description"]');
+          if (metaDescription) {
+            metaDescription.setAttribute('content',
+              `Get instant answers about ${data.projectName}'s ${data.projectType} features and services with our AI assistant.`);
+          }
+
+          // Update Open Graph tags
+          const ogTitle = document.querySelector('meta[property="og:title"]');
+          const ogDescription = document.querySelector('meta[property="og:description"]');
+
+          if (ogTitle) {
+            ogTitle.setAttribute('content',
+              `${data.projectName} | ${data.projectType.charAt(0).toUpperCase() + data.projectType.slice(1)} Assistant`);
+          }
+
+          if (ogDescription) {
+            ogDescription.setAttribute('content',
+              `Get instant answers about ${data.projectName}'s ${data.projectType} features and services with our AI assistant.`);
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching settings:', error);
+      });
+  </script>
+  <meta property="og:type" content="website" />
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>

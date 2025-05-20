@@ -1,0 +1,15 @@
+This file contains knowledge about BTAssetHub.digital services and features.
+Add your specific information about BTAssetHub here, including:
+
+- Company information
+- Services offered
+- Features and benefits
+- Pricing details
+- Integration capabilities
+- Technical specifications
+- FAQ content
+- Use cases and examples
+- Support information
+- Any other relevant details
+
+The AI assistant will use this knowledge to provide accurate responses to user queries.

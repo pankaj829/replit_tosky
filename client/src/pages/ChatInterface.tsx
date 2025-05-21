@@ -9,7 +9,7 @@ import SuggestionChips from "@/components/SuggestionChips";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
+import { useVoice } from "@/contexts/VoiceContext";
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -18,9 +18,33 @@ export default function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
-  // Initialize speech synthesis
-  const { speak, cancel, voiceEnabled, voiceInputUsed, markVoiceInputUsed } =
-    useSpeechSynthesis();
+
+  // Connect to voice context
+  const { sendMessage } = useVoice();
+
+  // Listen for voice messages from the voice assistant
+  useEffect(() => {
+    const handleVoiceMessage = (event: CustomEvent) => {
+      const { message } = event.detail;
+      if (message) {
+        handleSendMessage(message);
+      }
+    };
+
+    // Add event listener
+    window.addEventListener(
+      "voice-message",
+      handleVoiceMessage as EventListener
+    );
+
+    // Clean up
+    return () => {
+      window.removeEventListener(
+        "voice-message",
+        handleVoiceMessage as EventListener
+      );
+    };
+  }, []);
 
   // Fetch chat history when component mounts
   const { data: historyData } = useQuery({
@@ -364,28 +388,12 @@ export default function ChatInterface() {
     }
   }, [historyData, historyLoaded]);
 
-  // Scroll to bottom of messages when new ones arrive and handle text-to-speech
+  // Scroll to bottom of messages when new ones arrive
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-
-    // Read the latest assistant message if voice input was used
-    const latestMessage = messages[messages.length - 1];
-    if (
-      latestMessage &&
-      latestMessage.sender === "assistant" &&
-      !latestMessage.isStreaming &&
-      !latestMessage.isError &&
-      voiceEnabled &&
-      voiceInputUsed
-    ) {
-      // Cancel any ongoing speech
-      cancel();
-      // Read the new message
-      speak(latestMessage.text);
-    }
-  }, [messages, voiceEnabled, voiceInputUsed, speak, cancel]);
+  }, [messages]);
 
   const handleSendMessage = (text: string) => {
     // Hide welcome message when first message is sent
@@ -414,6 +422,19 @@ export default function ChatInterface() {
     // Use streaming API instead of regular message API
     sendStreamingMessage(text);
   };
+
+  // Update VoiceContext with the latest message from the assistant
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (
+      lastMessage &&
+      lastMessage.sender === "assistant" &&
+      !lastMessage.isStreaming
+    ) {
+      // Send the assistant's response to the voice context
+      sendMessage(lastMessage.text);
+    }
+  }, [messages, sendMessage]);
 
   const handleSuggestionClick = (suggestionText: string) => {
     handleSendMessage(suggestionText);
@@ -539,7 +560,6 @@ export default function ChatInterface() {
         <ChatInput
           onSendMessage={handleSendMessage}
           isProcessing={isProcessing || isPending}
-          onVoiceUsed={markVoiceInputUsed}
         />
 
         {showWelcome && (

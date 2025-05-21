@@ -2,18 +2,15 @@ import { useState, KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowUp } from "lucide-react";
-import VoiceControls from "./VoiceControls";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
   isProcessing: boolean;
-  onVoiceUsed?: () => void;
 }
 
 export default function ChatInput({
   onSendMessage,
   isProcessing,
-  onVoiceUsed,
 }: ChatInputProps) {
   const [inputValue, setInputValue] = useState("");
 
@@ -34,12 +31,6 @@ export default function ChatInput({
     }
   };
 
-  const handleSpeechResult = (text: string) => {
-    if (text.trim()) {
-      onSendMessage(text.trim());
-    }
-  };
-
   return (
     <div className="w-full mb-8">
       <div className="relative rounded-xl bg-card border border-border overflow-hidden shadow-sm transition-all hover:shadow-md">
@@ -48,17 +39,10 @@ export default function ChatInput({
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          className="w-full bg-transparent py-6 px-5 pr-28 text-foreground placeholder-muted-foreground border-none focus-visible:ring-1 focus-visible:ring-primary/50 font-heading text-base"
+          className="w-full bg-transparent py-6 px-5 pr-14 text-foreground placeholder-muted-foreground border-none focus-visible:ring-1 focus-visible:ring-primary/50 font-heading text-base"
           placeholder="Ask a question..."
           disabled={isProcessing}
         />
-        <div className="absolute right-14 top-1/2 -translate-y-1/2 flex items-center">
-          <VoiceControls
-            onSpeechResult={handleSpeechResult}
-            disabled={isProcessing}
-            onVoiceUsed={onVoiceUsed}
-          />
-        </div>
         <Button
           onClick={handleSendMessage}
           disabled={!inputValue.trim() || isProcessing}

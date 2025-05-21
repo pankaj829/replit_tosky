@@ -88,6 +88,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         siteName: process.env.SITE_NAME || `${projectName} Assistant`,
         projectName: projectName,
         projectType: projectType,
+        // Add Vapi configuration
+        vapiPublicKey: process.env.VAPI_PUBLIC_KEY || "",
+        vapiAssistantId: process.env.VAPI_ASSISTANT_ID || "",
         suggestions: [
           {
             id: 1,
